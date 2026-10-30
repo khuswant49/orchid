@@ -8,6 +8,8 @@ modes: [operate, persuade]
 tags: [dashboard, monitoring, data, devtools, infrastructure, analytics, ai, robotics, drone, saas, developer]
 affinity3d: accent
 scheme: dark
+voice: "Terse status language. Labels in nouns, values with units, states named plainly (Online, Degraded, Offline)."
+avoid: [health, kids, commerce]
 dials:
   density: [6, 9]
   contrast: [6, 9]

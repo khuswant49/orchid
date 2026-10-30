@@ -8,6 +8,8 @@ modes: [operate, read, persuade]
 tags: [civic, government, transport, travel, health, education, docs, saas, app, public, accessibility]
 affinity3d: none
 scheme: light
+voice: "Directional and brief. Where, what, how long, in plain words anyone can act on."
+avoid: []
 dials:
   density: [3, 6]
   contrast: [8, 10]

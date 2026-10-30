@@ -411,6 +411,16 @@ try {
       }
     }
 
+    // WCAG 1.4.10 Reflow: usable at 320 CSS px (400% zoom on a 1280 px screen) without horizontal scrolling.
+    {
+      const fctx = await browser.newContext({ viewport: { width: 320, height: 640 }, hasTouch: true });
+      const { page: fp } = await open(fctx, path);
+      const ov = await fp.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      if (ov > 1) await fp.screenshot({ path: join(OUT, 'screens', `${name}-320-reflow.png`), fullPage: true }).catch(() => {});
+      record(path, 320, 'reflow', 'reflow-320', ov > 1 ? 'fail' : 'pass', ov > 1 ? `${ov}px horizontal scroll at 320px (WCAG 1.4.10)` : 'no horizontal scroll at 320px');
+      await fctx.close();
+    }
+
     // WebGL disabled: poster must show
     if (pg.has3D !== false) {
       const nb = await chromium.launch({ args: ['--disable-webgl', '--disable-3d-apis', '--disable-gpu'] });

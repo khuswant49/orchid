@@ -8,6 +8,8 @@ modes: [showcase, persuade]
 tags: [fashion, luxury, jewellery, beauty, interior, architecture, photography, hotel, brand, portfolio]
 affinity3d: accent
 scheme: light
+voice: "Spare and assured. Few words, nouns over adjectives, no exclamation marks, no hype."
+avoid: [civic, kids, health, finance]
 dials:
   density: [1, 4]
   contrast: [7, 9]

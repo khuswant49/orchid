@@ -8,6 +8,8 @@ modes: [read, operate]
 tags: [developer, devtools, cli, api, open-source, docs, library, infrastructure, engineering, portfolio]
 affinity3d: none
 scheme: dark
+voice: "Imperative and exact. Synopsis first, options listed, examples that run."
+avoid: [health, kids, commerce, civic]
 dials:
   density: [5, 8]
   contrast: [6, 8]

@@ -86,7 +86,7 @@ Otherwise:
 ```bash
 node <orchid>/scripts/deal.mjs --modes persuade,showcase --brief "<one paragraph from PRODUCT.md>"
 ```
-It prints 3 directions from `directions/`, chosen by fit plus a random draw and down-weighted if used recently. Read all three files in full. In guided mode, show the user the three as one line each plus your recommendation; in fast mode, pick. Then:
+It prints 3 directions from `directions/`, chosen by fit plus a random draw and down-weighted if used recently. It infers the vertical from the brief (health, kids, commerce, finance, civic) and leaves out directions that would hurt trust there; pass `--vertical` when the brief doesn't say it. Read all three files in full. In guided mode, show the user the three as one line each plus your recommendation; in fast mode, pick. Then:
 - Set the three dials (density, contrast, motion, each 1–10) within the direction's ranges, to suit the brief.
 - Write the **thesis**: one sentence tying a fact only this client has to the direction. ("A darkroom contact sheet, because this developer's work is best judged screen by screen.")
 - Record the choice: `node <orchid>/scripts/deal.mjs --record <id> --project <name>`.
@@ -109,7 +109,10 @@ Read `references/psychology.md` and `references/copy-and-states.md`. For each pa
 - section order and hierarchy, with an ASCII wireframe for desktop and mobile;
 - the **peak** (one deliberate high point) and the **end** (what the visitor leaves with);
 - required states (empty, loading, error, overflow) for every data view;
-- draft copy in the product's voice.
+- draft copy in the product's voice and the direction's register;
+- **acceptance checks**: 5–15 observable statements of what a visitor can do and see on this page ("Submitting the contact form with an empty email shows an error next to the field"; "Each project card links to its case study"; "Prices include delivery"). Short briefs are underspecified, and these turn them into something verification can test.
+
+For subscription, contract or regulated sites, the sitemap also gets the pages `references/ethics.md` requires (cancellation or withdrawal, accessibility statement).
 
 Check each plan against its mode's rules in `references/modes.md` before moving on.
 
@@ -141,9 +144,11 @@ node <orchid>/scripts/check-source.mjs --root .
 NEXT_PUBLIC_ORCHID_PROBES=1 npx next build && npx next start -p 3000
 node <orchid>/scripts/check-page.mjs --url http://localhost:3000 --config .orchid/check.json
 ```
-Write `.orchid/check.json` from the sitemap first: pages with their modes and states (format in `scripts/README.md`). For other stacks, use their production build and server in place of the Next.js commands. The markers the checks rely on (`data-cta="primary"`, `data-orchid-placeholder`, `?orchid-state=`) are listed in `scripts/README.md`. The page script tests 390, 768 and 1440 px, a reduced-motion run and a WebGL-disabled run, and writes `.orchid/checks/report.json`, `summary.md` and screenshots.
+Write `.orchid/check.json` from the sitemap first: pages with their modes and states (format in `scripts/README.md`). For other stacks, use their production build and server in place of the Next.js commands. The markers the checks rely on (`data-cta="primary"`, `data-orchid-placeholder`, `?orchid-state=`) are listed in `scripts/README.md`. The page script tests 390, 768 and 1440 px, reflow at 320 px, a reduced-motion run and a WebGL-disabled run, and writes `.orchid/checks/report.json`, `summary.md` and screenshots.
 
 Add companion checks where suitable (`references/companions.md`): `npx impeccable detect --json .` on the source and on the running URL; Emil's `review-animations` after motion work; `break-ui` on data components.
+
+Walk each page's **acceptance checks** in the browser (Playwright or by hand) and record pass or fail in the report; a page that looks finished but fails a check isn't finished.
 
 Then **look** at the screenshots at all three widths against the thesis and `references/slop-tells.md`. Some qualities only a look can catch: rhythm, whether the peak lands, whether it feels like the direction.
 
@@ -157,6 +162,7 @@ Write `.orchid/report.md` and summarise it to the user:
 # Orchid report: <project>
 Route: <route> · Direction: <name> · Thesis: <one sentence>
 ## Passed
+## Acceptance checks (page → check → pass/fail)
 ## Trade-offs made
 ## Still open (with reason)
 ## Needs from you (from needs.md, still missing)

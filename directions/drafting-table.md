@@ -8,6 +8,8 @@ modes: [showcase, persuade, read]
 tags: [architecture, engineering, hardware, robotics, product, developer, construction, technical, portfolio, saas]
 affinity3d: full
 scheme: light
+voice: "Exact and technical. Dimensions, tolerances and verbs of making; notes read like annotations on a drawing."
+avoid: [kids, health]
 dials:
   density: [4, 7]
   contrast: [6, 8]

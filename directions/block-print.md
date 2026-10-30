@@ -8,6 +8,8 @@ modes: [persuade, showcase]
 tags: [fashion, textile, craft, home, interior, food, cafe, ngo, artisan, india, small-business, wellness]
 affinity3d: accent
 scheme: light
+voice: "Warm and specific about craft. Name the materials, the place and the hands that made it."
+avoid: [civic, finance]
 dials:
   density: [3, 6]
   contrast: [6, 8]

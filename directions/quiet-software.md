@@ -8,6 +8,8 @@ modes: [operate, persuade]
 tags: [saas, dashboard, app, devtools, productivity, b2b, admin, editor, analytics, startup, developer]
 affinity3d: none
 scheme: light
+voice: "Neutral and functional. Verbs on buttons, short helper text, no marketing inside the app."
+avoid: []
 dials:
   density: [5, 9]
   contrast: [5, 7]

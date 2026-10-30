@@ -8,6 +8,8 @@ modes: [showcase, read]
 tags: [art, photography, architecture, design, portfolio, gallery, culture, studio, luxury, minimal]
 affinity3d: accent
 scheme: light
+voice: "Curatorial. Title, date and medium, then two or three sentences of context. No superlatives."
+avoid: [kids, finance]
 dials:
   density: [1, 4]
   contrast: [5, 7]

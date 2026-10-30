@@ -8,6 +8,8 @@ modes: [read, persuade]
 tags: [writing, blog, journalism, research, consultant, agency, publication, newsletter, docs, portfolio]
 affinity3d: none
 scheme: light
+voice: "Journalistic. Headlines that state the news, a standfirst that explains it, a source for every claim."
+avoid: [kids]
 dials:
   density: [5, 8]
   contrast: [6, 8]

@@ -8,6 +8,8 @@ modes: [showcase, persuade]
 tags: [portfolio, photography, film, developer, designer, creative, studio, video, case-study, dark]
 affinity3d: accent
 scheme: dark
+voice: "Quiet and observational, like captions on a contact sheet. Dates, places and frame numbers over adjectives."
+avoid: [health, kids, civic, finance, commerce]
 dials:
   density: [3, 6]
   contrast: [6, 9]

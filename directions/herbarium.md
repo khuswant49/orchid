@@ -8,6 +8,8 @@ modes: [showcase, read]
 tags: [science, botany, agriculture, research, museum, archive, education, collection, catalogue, environment]
 affinity3d: accent
 scheme: light
+voice: "Catalogue precision. Names, dates and provenance; a little wonder, never gushing."
+avoid: [finance, civic, commerce]
 dials:
   density: [3, 6]
   contrast: [5, 7]

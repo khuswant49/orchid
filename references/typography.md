@@ -16,7 +16,7 @@ Banning alone just shifts the agent to the next most common font. Each direction
 - Contrast in structure, not just in name: serif display + sans body, or a condensed display + a wide text face. Two similar sans-serifs look like a mistake.
 - Check the body face at 16 px on a phone before committing. Display faces often fail as text.
 - Free sources: Google Fonts (via `next/font/google` or `@fontsource/*`) and Fontshare. Paid fonts only when the user supplies licences.
-- Check Devanagari or other scripts if the audience needs them (Mukta, Hind, Tiro Devanagari, Anek, Rozha One cover Latin + Devanagari).
+- Check Devanagari or other scripts if the audience needs them; see "Indic scripts" below.
 
 ## Scale
 
@@ -25,6 +25,17 @@ Banning alone just shifts the agent to the next most common font. Each direction
 - Body 16–18 px on screens, line height 1.5–1.7 for text, 1.0–1.15 for display.
 - Letter-spacing: slightly negative on large display sizes (−0.01 to −0.03 em); never crush it below −0.04 em. Positive tracking (0.04–0.12 em) only on small uppercase labels.
 - Measure: 45–75 characters per line for reading text.
+
+## Indic scripts (Devanagari and others)
+
+Latin-tuned settings break Indian scripts. Devanagari hangs from a headstroke (shirorekha), vowel signs (matras) rise above it and conjuncts drop below the baseline, so tight line heights clip them and letter-spacing breaks words apart.
+
+- **Families that cover Latin and Devanagari** (all on Google Fonts and `@fontsource/*`): Mukta, Hind, Anek Devanagari, Baloo 2 (friendly), Martel and Tiro Devanagari Hindi (serif), Eczar, Rozha One and Yatra One (display), Noto Sans / Noto Serif Devanagari (fallback and other scripts: Noto covers Bengali, Tamil, Telugu, Kannada, Gujarati and more). Load the `devanagari` subset only on pages that use it.
+- **Line height:** headings 1.3 or more, body 1.6–1.8. Never clip lines with `overflow: hidden` (split-line text reveals do this); test with matras and conjuncts such as "प्रौद्योगिकी", "स्त्री", "कृष्ण", "हिंदी".
+- **No letter-spacing** on Devanagari text and no uppercase-label styling; no synthetic bold or italic (`font-synthesis: none`), since Devanagari has no italic tradition. Emphasise with weight or colour.
+- **Optical size:** Devanagari looks smaller than Latin at the same `font-size`. When mixing scripts in one line, match them by eye with `size-adjust` on the Devanagari `@font-face`, or a small `:lang(hi)` size increase.
+- **Mark the language** (`<html lang="hi">`, or `lang` on mixed spans) so `:lang()` rules apply, hyphenation stays off, and screen readers pronounce it correctly.
+- Numerals: use the figures the audience expects (most Indian sites use Latin digits even in Hindi text); keep amounts in Indian grouping (₹1,20,000) with `Intl.NumberFormat('en-IN')`.
 
 ## Details that read as crafted
 

@@ -8,6 +8,8 @@ modes: [read, operate, persuade]
 tags: [data, research, report, analytics, climate, finance, health, ml, ai, education, dashboard, student]
 affinity3d: accent
 scheme: light
+voice: "Plain and numerate. Lead with the number, then what it means. Short declarative headlines, units always shown."
+avoid: [kids]
 dials:
   density: [5, 8]
   contrast: [6, 8]

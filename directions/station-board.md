@@ -8,6 +8,8 @@ modes: [operate, read, persuade]
 tags: [transport, civic, government, utility, logistics, booking, travel, india, public, app, docs]
 affinity3d: none
 scheme: light
+voice: "Public-information tone, bilingual where useful. Clear nouns, directions and times."
+avoid: []
 dials:
   density: [4, 7]
   contrast: [8, 10]

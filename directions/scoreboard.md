@@ -8,6 +8,8 @@ modes: [persuade, operate]
 tags: [sports, fitness, gaming, esports, live, events, competition, leaderboard, app, community]
 affinity3d: accent
 scheme: dark
+voice: "Live and energetic. Scores, times and names first; short verbs; no corporate tone."
+avoid: [health, civic, finance]
 dials:
   density: [5, 8]
   contrast: [8, 10]

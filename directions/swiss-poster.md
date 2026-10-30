@@ -8,6 +8,8 @@ modes: [persuade, showcase]
 tags: [agency, design, event, conference, architecture, startup, portfolio, product, launch, culture]
 affinity3d: accent
 scheme: light
+voice: "Objective and minimal. Facts in a clear hierarchy; the layout carries the emphasis, not adjectives."
+avoid: [kids]
 dials:
   density: [2, 5]
   contrast: [8, 10]

@@ -8,6 +8,8 @@ modes: [persuade, showcase]
 tags: [film, music, festival, food, restaurant, event, entertainment, creative, india, mumbai, culture]
 affinity3d: accent
 scheme: light
+voice: "Bold and theatrical but honest. Big short headlines, billing-block credits, Hindi or Hinglish where the audience speaks it."
+avoid: [health, civic, finance]
 dials:
   density: [4, 7]
   contrast: [7, 10]

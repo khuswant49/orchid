@@ -4,10 +4,10 @@ All scripts are plain Node (≥ 20) with no dependencies, except `check-page.mjs
 
 | Script | What it does |
 |---|---|
-| `deal.mjs` | Deals 3 art directions for a brief and modes; records choices to avoid repeats |
+| `deal.mjs` | Deals 3 art directions for a brief and modes; infers the vertical (health, kids, commerce, finance, civic) and skips unsuitable directions; records choices to avoid repeats |
 | `contrast.mjs` | OKLCH ramps, contrast of a pair, and a full check of `DESIGN.md` or a direction file |
 | `check-source.mjs` | Source checks: tokens, dead classes, banned fonts, easing, reduced motion, copy, dark patterns |
-| `check-page.mjs` | Rendered checks at 3 widths, reduced motion, WebGL off, 3D probes, scroll sequences, LCP/CLS |
+| `check-page.mjs` | Rendered checks at 3 widths, reflow at 320 px, reduced motion, WebGL off, 3D probes, scroll sequences, LCP/CLS |
 | `capture.mjs` | Clean desktop and mobile screenshots of a live site (for showcasing the user's work) |
 | `setup.mjs` | Status of Node, Playwright, companion skills and Impeccable's hook; `--install <playwright\|impeccable\|emil\|motion\|taste>` runs one installer (only with the user's agreement) |
 

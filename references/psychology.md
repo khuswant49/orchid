@@ -17,7 +17,7 @@ Evidence: **Strong** = replicated or meta-analysed. **Moderate** = solid single 
 10. Cognitive load and chunking (strong)
 11. Conventions — Jakob's law (moderate)
 12. Scanning and the fold (moderate)
-13. Credibility (moderate)
+13. Credibility and aesthetics (strong for performance, moderate for credibility)
 14. Myth filter — don't apply these
 
 ---
@@ -93,15 +93,17 @@ Effort speeds up as a goal gets closer; an illusory head start sped completion i
 Under 0.1 s feels instant; under 1 s keeps the train of thought; around 10 s attention is lost (Miller 1968; Card et al. 1991). IBM's 400 ms target kept users in flow (Doherty & Thadani 1982). INP is good at 200 ms or less.
 
 - **Never:** a click with no visible change; spinners for waits under 1 s; blocking full-page loaders.
-- **Instead:** visible feedback within 100 ms (pressed state, optimistic update); skeletons shaped like the coming content past ~1 s; progress for longer work.
+- **Instead:** visible feedback within 100 ms (pressed state, optimistic update); for waits of about 1–10 s, a skeleton shaped like the coming content; past ~10 s, a determinate progress indicator that says what's happening (NN/g's guidance on skeleton screens).
 - **Check:** time from click to first visible change in Playwright; INP in the report.
 
 ## 10. Cognitive load and chunking
 
-Extraneous material competes with the task for limited working memory (Sweller 1988). Working memory holds about 4 chunks (Cowan 2001).
+Extraneous material competes with the task for limited working memory (Sweller 1988). Working memory holds about 4 chunks (Cowan 2001). A 2026 meta-analysis of 50 experiments (20,883 learners) confirmed that interesting but irrelevant material ("seductive details") has a small, significant cost to memory and comprehension, and showed through structural modelling that it works by adding extraneous load (Cheng, Wang et al. 2026, *Educational Psychology Review*). Realism isn't the problem by itself: a realistic picture of the right subject hurt learning when it sat in a rich, irrelevant background (Niesik, Engel-Hermann & Skulmowski 2026, *Applied Cognitive Psychology*).
 
 - **Never:** decoration with no information (floating blobs, stock illustrations, ornamental icons); asking users to remember something from a previous screen.
 - **Instead:** group content into meaningful chunks (3–5 items per group as a starting point); keep needed information visible where it's used.
+- **Never:** a real subject (product, person, place, 3D model) shown inside a busy scene that has nothing to do with the point.
+- **Instead:** the subject on a plain or meaningful background; detail only where the visitor has to tell things apart.
 - **Check:** count distinct font sizes and colours per screen against the scale; a look for decoration that carries no meaning.
 
 ## 11. Conventions (Jakob's law)
@@ -120,12 +122,19 @@ The F-pattern is what users fall into when a page gives no structure — a failu
 - **Instead:** front-loaded headings that carry the point; short paragraphs; the key message and action in the first viewport; the second-most-important content in the second screen.
 - **Check:** h1 and the primary action visible in the first viewport (persuade pages).
 
-## 13. Credibility
+## 13. Credibility and aesthetics
 
 In a Stanford / Consumer WebWatch study (2,684 people), 46.1% of comments about a site's credibility mentioned its visual design, more than any other factor (Fogg et al. 2002). Polish is a trust signal. After real use, though, usability shapes perceived beauty more than the reverse (Tuch et al. 2012), so polish can't cover for broken flows.
 
+Good looks also help people *perform*, not just judge: a 2026 meta-analysis of 31 experiments (18,794 participants) found a small-to-medium positive effect of visual aesthetics on objective speed, accuracy and efficiency, larger than the 2019 estimate, and no evidence that attractive design impairs performance (Schlamann, Nestler & Thielsch 2026, *International Journal of Human–Computer Interaction*). Treat design quality as part of usability, on operate pages too.
+
+Words and visuals are read together. In a 2026 qualitative study of digital health services, users took consistency between visual style and writing register as a sign of expertise (*Healthcare* 14(7):964; moderate evidence, but it matches the credibility research above). A restrained, editorial layout with breathless marketing copy reads as fake.
+
 - **Never:** inconsistent spacing, misaligned edges, broken states, placeholder text left in production.
 - **Instead:** exact alignment to the grid, consistent tokens, every state designed.
+- **Never:** copy whose register fights the direction (hype on a museum-label page, jokes on a patient-leaflet page).
+- **Instead:** write in the direction's `voice` (front matter of each direction file), adjusted by the voice words in `PRODUCT.md`.
+- **Check:** read the h1 and the primary button aloud next to the screenshot; they should sound like the same author.
 
 ## 14. Myth filter — don't apply these
 

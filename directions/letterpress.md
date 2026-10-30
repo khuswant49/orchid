@@ -8,6 +8,8 @@ modes: [persuade, read]
 tags: [stationery, wedding, restaurant, cafe, bakery, studio, craft, publisher, event, small-business]
 affinity3d: none
 scheme: light
+voice: "Courteous and considered, like a printed invitation. Complete sentences, no slang."
+avoid: [civic, finance]
 dials:
   density: [3, 6]
   contrast: [6, 8]

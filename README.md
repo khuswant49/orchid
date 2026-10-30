@@ -58,7 +58,7 @@ Everything is plain text; edit freely.
 |---|---|
 | The workflow or rules | `SKILL.md` |
 | Psychology, motion, 3D, copy guidance | `references/*.md` |
-| Art directions | `directions/*.md`. Add your own by copying one: keep the front matter fields (`id`, `name`, `referent`, `family`, `mood`, `modes`, `tags`, `affinity3d`, `scheme`, `dials`) and the yaml palette block, then run `node scripts/contrast.mjs check directions/<file>.md` |
+| Art directions | `directions/*.md`. Add your own by copying one: keep the front matter fields (`id`, `name`, `referent`, `family`, `mood`, `modes`, `tags`, `affinity3d`, `scheme`, `voice`, `avoid`, `dials`) and the yaml palette block, then run `node scripts/contrast.mjs check directions/<file>.md`. `avoid` lists verticals (health, kids, commerce, finance, civic) where the direction shouldn't be dealt |
 | Banned fonts and phrases | `BANNED_FONTS` and `BANNED_PHRASES` in `scripts/check-source.mjs`, plus `references/typography.md` and `references/copy-and-states.md` |
 | Check thresholds | `scripts/check-page.mjs` |
 | Starting theme and 3D components | `templates/` |
@@ -67,6 +67,6 @@ The dealer remembers which directions you've used in `~/.claude/orchid/history.j
 
 ## Tested
 
-Scripts and templates were tested on a Next.js 16 / React 19 / Tailwind 4.3 / three.js r186 site: the theme lock, the dealer's variety, every palette's contrast (21 directions, light and dark), DESIGN.md linting with `@google/design.md`, source and page checks against a deliberately sloppy page, 3D probes, the scroll sequence, reduced-motion and WebGL-off fallbacks, and lazy loading of three.js.
+Scripts and templates were tested on a Next.js 16 / React 19 / Tailwind 4.3 / three.js r186 site: the theme lock, the dealer's variety, every palette's contrast (25 directions, light and dark), vertical-aware dealing, DESIGN.md linting with `@google/design.md`, source and page checks against a deliberately sloppy page, 3D probes, the scroll sequence, reduced-motion and WebGL-off fallbacks, and lazy loading of three.js.
 
 See `NOTICE.md` for sources and attribution.

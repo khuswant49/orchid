@@ -148,7 +148,7 @@ for (const abs of files) {
       if (/lorem ipsum/i.test(chunk)) add('fail', 'lorem-ipsum', file, lineOf(text, idx), 'Lorem ipsum', 'Real copy, or a marked placeholder listed in needs.md.');
       if (/\b(John|Jane) Doe\b|acme (corp|inc)/i.test(chunk)) add('warn', 'fake-name', file, lineOf(text, idx), chunk, 'Use realistic fixtures in dev only; never ship fake people or companies.');
       if (/\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F/u.test(chunk) && CODE_EXT.has(ext)) add('warn', 'emoji-icon', file, lineOf(text, idx), chunk, 'Use an icon set, or no icon.');
-      if (/no,? thanks?,? i (?:don'?t|do not) (?:want|like|care|need)|i(?:'d| would) rather (?:pay full price|stay)/i.test(chunk)) add('fail', 'confirm-shaming', file, lineOf(text, idx), chunk, 'Neutral decline text: "No thanks".');
+      if (/no,? thanks?,? i (?:don'?t|do not) (?:want|like|care|need)|i(?:'d| would) rather (?:pay full price|stay)|no,? i(?:'ll| will) take (?:the |my )?(?:risk|chances?)|i (?:don'?t|do not) (?:want|need) to (?:save|be protected|learn)/i.test(chunk)) add('fail', 'confirm-shaming', file, lineOf(text, idx), chunk, 'Neutral decline text: "No thanks".');
       if (/only \d+ left|offer ends|ends in \d|hurry|\d+ (?:people|others) (?:are )?(?:viewing|looking)/i.test(chunk)) add('warn', 'urgency', file, lineOf(text, idx), chunk, 'Only if it is true and live (see ethics.md).');
       if (/trusted by|\d[\d,]*\+? (?:happy )?(?:customers|users|clients|teams|developers)/i.test(chunk)) add('warn', 'social-proof', file, lineOf(text, idx), chunk, 'Must be real and verifiable; otherwise remove.');
     }

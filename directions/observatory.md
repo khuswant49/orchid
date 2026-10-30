@@ -8,6 +8,8 @@ modes: [showcase, persuade]
 tags: [space, astronomy, ai, research, deep-tech, data, science, physics, drone, robotics, portfolio]
 affinity3d: full
 scheme: dark
+voice: "Measured wonder. Precise figures and coordinates; awe earned by facts."
+avoid: [health, kids, civic, finance]
 dials:
   density: [2, 5]
   contrast: [6, 9]

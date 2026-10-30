@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Deals art directions for a brief.
 //   node deal.mjs --modes persuade,showcase --brief "portfolio for a frontend developer" [--count 3] [--seed 42]
-//                 [--scheme dark|light] [--exclude id,id] [--any]
+//                 [--scheme dark|light] [--exclude id,id] [--vertical health|kids|commerce|finance|civic] [--any]
+//   The vertical is inferred from the brief when not given; directions that list it under `avoid` aren't dealt.
 //   node deal.mjs --record <id> --project <name>      remember a choice (avoids repeats next time)
 //   node deal.mjs --list                               list every direction
 // History lives in ~/.claude/orchid/history.json (override with ORCHID_HISTORY; disable with ORCHID_NO_HISTORY=1).
@@ -30,6 +31,18 @@ function load() {
   });
 }
 
+// Verticals where some directions hurt trust or usability (each direction lists them under `avoid`).
+const VERTICALS = {
+  health: ['health', 'clinic', 'hospital', 'medical', 'pharmacy', 'telehealth', 'patient', 'doctor', 'therapy', 'diagnostic'],
+  kids: ['kids', 'children', 'child', 'school', 'edtech', 'tutoring', 'classroom', 'learners'],
+  commerce: ['ecommerce', 'e-commerce', 'shop', 'store', 'retail', 'marketplace', 'd2c', 'checkout', 'catalogue', 'catalog'],
+  finance: ['fintech', 'bank', 'banking', 'finance', 'payments', 'insurance', 'investing', 'lending', 'loan', 'tax', 'wallet'],
+  civic: ['government', 'civic', 'municipal', 'public service', 'ministry', 'council', 'citizen'],
+};
+const inferVerticals = (brief) => Object.entries(VERTICALS)
+  .filter(([, words]) => words.some((w) => new RegExp(`\\b${w.replace('-', '\\-')}s?\\b`).test(brief)))
+  .map(([v]) => v);
+
 // Small seeded PRNG (mulberry32) so a deal can be reproduced with --seed.
 function rng(seed) {
   let a = seed >>> 0;
@@ -46,14 +59,20 @@ function deal() {
   const seed = Number(opt('seed', Date.now() % 2147483647));
   const rand = rng(seed);
   const any = flag('any');
+  const vGiven = opt('vertical');
+  const verticals = vGiven ? vGiven.split(',').map((v) => v.trim()).filter(Boolean) : inferVerticals(brief);
+  const unknown = verticals.filter((v) => !VERTICALS[v]);
+  if (unknown.length) { console.error(`Unknown vertical: ${unknown.join(', ')}. Choose: ${Object.keys(VERTICALS).join(', ')}`); process.exit(1); }
 
   const history = useHistory ? readHistory().map((h) => h.id) : [];
   const recent5 = new Set(history.slice(-5)), recent10 = new Set(history.slice(-10));
 
-  const scored = all.filter((d) => !exclude.has(d.id)).map((d) => {
+  const unsuited = (d) => !any && verticals.some((v) => (d.avoid || []).includes(v));
+  const scored = all.filter((d) => !exclude.has(d.id) && !unsuited(d)).map((d) => {
     const dm = d.modes || [];
     const modeHits = modes.filter((m) => dm.includes(m)).length;
-    const tagHits = (d.tags || []).filter((t) => brief.includes(String(t).replace(/-/g, ' ')) || brief.includes(String(t))).length;
+    const words = brief + ' ' + verticals.map((v) => VERTICALS[v].join(' ')).join(' ');
+    const tagHits = (d.tags || []).filter((t) => words.includes(String(t).replace(/-/g, ' ')) || words.includes(String(t))).length;
     let score = any ? 0 : modeHits * 2 + Math.min(tagHits, 3) * 1.5;
     if (!any && scheme && d.scheme === scheme) score += 1;
     if (recent5.has(d.id)) score -= 4; else if (recent10.has(d.id)) score -= 2;
@@ -85,7 +104,8 @@ function deal() {
   }
 
   console.log(`# Dealt directions (seed ${seed})\n`);
-  console.log(`Brief: ${brief || '(none)'}\nModes: ${modes.join(', ') || '(any)'}\n`);
+  console.log(`Brief: ${brief || '(none)'}\nModes: ${modes.join(', ') || '(any)'}`);
+  console.log(`Vertical: ${verticals.length ? `${verticals.join(', ')}${vGiven ? '' : ' (from the brief)'}; left out: ${all.filter(unsuited).map((d) => d.id).join(', ') || 'none'}` : 'none detected'}\n`);
   picks.forEach(({ d, modeHits, tagHits }, i) => {
     const dials = d.dials ? Object.entries(d.dials).map(([k, v]) => `${k} ${Array.isArray(v) ? v.join('–') : v}`).join(', ') : '';
     console.log(`## ${i + 1}. ${d.name} (\`${d.id}\`)${i === picks.length - 1 && picks.length > 2 ? ' — wildcard' : ''}`);
@@ -93,6 +113,7 @@ function deal() {
     console.log(`Mood: ${(d.mood || []).join(', ')} · Scheme: ${d.scheme} · 3D: ${d.affinity3d} · Dials: ${dials}`);
     console.log(`Fit: ${modeHits} mode match(es), ${tagHits} brief keyword(s)`);
     console.log(`${d.idea}`);
+    if (d.voice) console.log(`Voice: ${d.voice}`);
     console.log(`File: ${d.file}\n`);
   });
   console.log('Next: read all three files in full, pick one (or show the user in guided mode), set the dials, write the thesis,');
@@ -111,6 +132,6 @@ function record() {
 }
 
 if (flag('list')) {
-  for (const d of load()) console.log(`${d.id.padEnd(16)} ${String(d.family).padEnd(10)} ${String(d.scheme).padEnd(6)} ${(d.modes || []).join(',').padEnd(26)} ${d.referent}`);
+  for (const d of load()) console.log(`${d.id.padEnd(16)} ${String(d.family).padEnd(10)} ${String(d.scheme).padEnd(6)} ${(d.modes || []).join(',').padEnd(26)} ${((d.avoid || []).length ? 'avoid: ' + d.avoid.join(',') : '').padEnd(38)} ${d.referent}`);
 } else if (opt('record')) record();
 else deal();

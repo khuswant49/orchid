@@ -8,6 +8,8 @@ modes: [persuade, showcase]
 tags: [wellness, health, skincare, ceramics, interior, architecture, hospitality, food, studio, lifestyle]
 affinity3d: accent
 scheme: light
+voice: "Calm and tactile. Short sentences about materials and process, no urgency."
+avoid: [civic, finance]
 dials:
   density: [2, 5]
   contrast: [5, 7]

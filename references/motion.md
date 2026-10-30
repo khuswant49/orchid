@@ -57,10 +57,27 @@ Consider an on-page motion toggle on motion-heavy pages (with `aria-pressed`).
 | Need | Tool |
 |---|---|
 | Component micro-interactions in React | Motion (`motion/react`) |
-| Scroll-linked choreography, pinned scenes, timelines | GSAP + ScrollTrigger (free for commercial use, including SplitText) |
+| Pinned scenes, multi-step scroll timelines, canvas frame scrubbing | GSAP + ScrollTrigger (free for commercial use, including SplitText) |
 | Smooth scrolling | Lenis — persuade and showcase pages only; never on app screens |
-| Simple reveals without JS | CSS `animation-timeline: view()` as progressive enhancement (not in Firefox stable as of mid-2026) |
+| Reading-progress bars, simple reveals, header changes on scroll, light parallax | CSS scroll-driven animations (`animation-timeline: scroll()` / `view()`). In all three engines since Firefox 159 (27 Oct 2026); Chrome since 115, Safari since 26. They run off the main thread, so no scroll jank on mid-range phones. Wrap in `@supports` so older browsers just show the content (recipe below) |
+| Tooltips, menus and popovers outside a component library | Popover API + CSS anchor positioning + `@starting-style` for the entry. In shadcn/Radix projects keep the library components: they already handle focus and ARIA |
 | Page and state transitions | View Transitions API |
+
+### Recipe: CSS scroll-driven reveal
+
+```css
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+    @keyframes reveal { from { opacity: 0; transform: translateY(var(--space-4)); } }
+  }
+}
+```
+Content is visible by default; only browsers that support the feature, for visitors who haven't asked for less motion, see the reveal. Keep the distance and range small: it's an entrance, not a scene.
 
 ## Scroll scenes
 

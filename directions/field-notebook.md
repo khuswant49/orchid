@@ -8,6 +8,8 @@ modes: [read, showcase]
 tags: [science, research, education, environment, agriculture, student, data, maker, documentation, portfolio]
 affinity3d: accent
 scheme: light
+voice: "First-person, curious and dated. Observations before conclusions."
+avoid: [finance, civic]
 dials:
   density: [4, 7]
   contrast: [5, 7]

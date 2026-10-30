@@ -8,6 +8,8 @@ modes: [persuade, showcase]
 tags: [music, event, community, student, creative, game, indie, festival, portfolio, education]
 affinity3d: accent
 scheme: light
+voice: "Loud, informal and local. Short punchy lines, first names, jokes the community gets."
+avoid: [health, civic, finance]
 dials:
   density: [4, 7]
   contrast: [6, 9]
