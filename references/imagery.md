@@ -23,6 +23,10 @@ Orchid doesn't generate images or video with AI. If the user wants to, write the
 - **Provenance:** extracting frames for a scroll sequence strips the source file's metadata (C2PA, watermarks). Keep the original video and its provenance in the project's source assets, and note the tool used in `PRODUCT.md` credits.
 - India's 2026 IT Rules amendments on synthetic media bind intermediaries (platforms that host other people's uploads). If the site lets users upload images or video, flag the labelling and takedown duties to the user.
 
+## Images must match their text
+
+An image shows what the text beside it describes. If the user's only screenshots show an older version, a different product or a prototype, don't explain the mismatch away in a caption: ask for current screenshots (list them in `needs.md`) and, until they arrive, leave the image out or label it plainly with the user's agreement. Don't infer facts from images (the engine a game was made in, a device model, a client's name); ask.
+
 ## Credits
 
 CC BY and CC BY-SA require attribution. Keep a `credits` list in `PRODUCT.md` (title, author, source URL, licence) and render it on a credits page or in the footer. CC0 and public domain need no credit, but crediting is good practice.

@@ -43,7 +43,8 @@ node <orchid>/scripts/check-page.mjs --url http://localhost:3000 --config .orchi
     { "path": "/", "mode": "persuade" },
     { "path": "/work/attendance", "mode": "showcase" },
     { "path": "/dashboard", "mode": "operate", "states": ["empty", "loading", "error", "long"] },
-    { "path": "/docs/setup", "mode": "read", "has3D": false }
+    { "path": "/docs/setup", "mode": "read", "has3D": false },
+    { "path": "/this-page-does-not-exist", "mode": "read", "status": 404, "has3D": false }
   ],
   "perf": true
 }
@@ -53,6 +54,8 @@ node <orchid>/scripts/check-page.mjs --url http://localhost:3000 --config .orchi
 - `states` loads each `?orchid-state=` fixture and checks for errors and overflow.
 - `has3D: false` skips the WebGL-off run for pages without scenes.
 - `perf: false` skips the throttled mobile LCP/CLS run.
+- `status` is the HTTP status the page should return (default 200). Use 404 for the not-found page so its own status isn't counted as an error.
+- Every page also gets: a 320 px reflow run, a dark-mode contrast run when the page changes under `prefers-color-scheme: dark`, and, for pages with a scene, a real touch swipe over the canvas to check the page still scrolls.
 
 ## Output
 

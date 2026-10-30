@@ -9,6 +9,12 @@ Copy this folder so Claude Code finds it:
 - For every project: `~/.claude/skills/orchid/`
 - For one project: `<project>/.claude/skills/orchid/`
 
+Or clone it, which makes updating a `git pull`:
+
+```bash
+git clone https://github.com/khuswant49/orchid ~/.claude/skills/orchid
+```
+
 Then, once per machine:
 
 ```bash
@@ -28,6 +34,10 @@ node ~/.claude/skills/orchid/scripts/setup.mjs --install motion      # Motion's 
 ```
 
 Restart Claude Code afterwards so new skills load. With Impeccable installed too, start design work with `/orchid` so it's clear which skill leads; Orchid uses Impeccable's detector, hook, reviews and `/impeccable live` along the way.
+
+### Updating, and one copy only
+
+`node ~/.claude/skills/orchid/scripts/setup.mjs` prints the version you're running and warns about other copies. Keep a single copy: if you also uploaded `orchid.skill` to claude.ai, the desktop app may load that one, and it only changes when you upload the new package (`orchid.skill` from the latest release) again. `git -C ~/.claude/skills/orchid pull` updates a cloned copy; a folder that was copied rather than cloned has to be replaced.
 
 ## Use
 

@@ -6,12 +6,16 @@
 //                                  run one installer (only after the user has agreed)
 // Skills installed mid-session load in the next Claude Code session; npx-based checks work immediately.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 
 const args = process.argv.slice(2);
+const SELF_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const versionOf = (root) => { try { return readFileSync(join(root, 'VERSION'), 'utf8').trim(); } catch { return null; } };
+const VERSION = versionOf(SELF_ROOT) || 'unknown';
 const HOME = homedir();
 const CWD = process.cwd();
 const scopeProject = args.includes('--project');
@@ -88,6 +92,21 @@ function chromiumReady() {
   try { require.resolve('playwright'); return { playwright: true, chromium: false }; } catch { return { playwright: false, chromium: false }; }
 }
 
+// Other copies of Orchid that Claude Code might load instead of this one (e.g. an old upload or a second clone).
+function otherCopies() {
+  const roots = [join(HOME, '.claude', 'skills'), join(CWD, '.claude', 'skills'), join(HOME, '.agents', 'skills'), join(CWD, '.agents', 'skills')];
+  const found = [];
+  for (const r of roots) {
+    let names; try { names = readdirSync(r); } catch { continue; }
+    for (const n of names) {
+      const p = join(r, n);
+      if (resolve(p) === resolve(SELF_ROOT)) continue;
+      if (existsSync(join(p, 'SKILL.md')) && existsSync(join(p, 'scripts', 'deal.mjs')) && /name:\s*orchid/.test(readFileSync(join(p, 'SKILL.md'), 'utf8'))) found.push({ path: p, version: versionOf(p) || 'older than 2026.10.30' });
+    }
+  }
+  return found;
+}
+
 function status() {
   const node = process.versions.node;
   const nodeOk = Number(node.split('.')[0]) >= 20;
@@ -123,9 +142,15 @@ const i = args.indexOf('--install');
 if (i >= 0) run(args[i + 1]);
 else {
   const s = status();
-  if (args.includes('--json')) console.log(JSON.stringify(s, null, 2));
+  if (args.includes('--json')) console.log(JSON.stringify({ version: VERSION, root: SELF_ROOT, otherCopies: otherCopies(), ...s }, null, 2));
   else {
-    console.log('Orchid setup\n');
+    console.log(`Orchid ${VERSION} (${SELF_ROOT})\n`);
+    const others = otherCopies();
+    if (others.length) {
+      console.log('Other copies of Orchid found; Claude Code may load one of these instead:');
+      for (const o of others) console.log(`  ${o.version.padEnd(24)} ${o.path}`);
+      console.log('  Keep one: remove or update the others. A copy uploaded to claude.ai is separate and only changes when you upload the new package.\n');
+    }
     for (const r of s.rows) console.log(`${r.ok ? (r.optional ? ' · ' : ' ✓ ') : ' ✗ '} ${r.item.padEnd(38)} ${r.detail}`);
     const seen = new Set();
     const missing = s.rows.filter((r) => !r.ok && r.fix && !seen.has(r.fix) && seen.add(r.fix));

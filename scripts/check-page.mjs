@@ -221,15 +221,50 @@ async function autoScroll(page) {
   });
 }
 
-async function open(context, path, { waitExtra = 800 } = {}) {
+async function open(context, path, { waitExtra = 800, expectStatus = 200 } = {}) {
   const page = await context.newPage();
   const errors = [];
-  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 200)); });
+  page.on('console', (m) => {
+    if (m.type() !== 'error') return;
+    const t = m.text();
+    // A not-found page served with its intended 404 status logs that status once; it isn't an error.
+    if (expectStatus !== 200 && new RegExp(`status of ${expectStatus}\\b`).test(t) && (m.location()?.url || '').replace(/\/$/, '') === (BASE + path).replace(/\/$/, '')) return;
+    errors.push(t.slice(0, 200));
+  });
   page.on('pageerror', (e) => errors.push(String(e.message || e).slice(0, 200)));
-  try { await page.goto(BASE + path, { waitUntil: 'networkidle', timeout: 45000 }); }
-  catch { await page.goto(BASE + path, { waitUntil: 'load', timeout: 45000 }).catch(() => {}); }
+  let resp = null;
+  try { resp = await page.goto(BASE + path, { waitUntil: 'networkidle', timeout: 45000 }); }
+  catch { resp = await page.goto(BASE + path, { waitUntil: 'load', timeout: 45000 }).catch(() => null); }
   await page.waitForTimeout(waitExtra);
-  return { page, errors };
+  return { page, errors, status: resp?.status() ?? null };
+}
+
+// Swipe up over the 3D canvas with real touch input; the page should scroll (touch-action must allow pan-y).
+async function touchScroll(browser, path, width) {
+  const context = await browser.newContext({ viewport: { width, height: 844 }, hasTouch: true, isMobile: true });
+  const sep = path.includes('?') ? '&' : '?';
+  const { page } = await open(context, `${path}${sep}orchid-tier=2`, { waitExtra: 2500 });
+  try {
+    const box = await page.evaluate(async () => {
+      const host = document.querySelector('[data-orchid-3d]');
+      if (!host) return null;
+      host.scrollIntoView({ block: 'center' });
+      await new Promise((r) => setTimeout(r, 1500));
+      const c = host.querySelector('canvas');
+      if (!c) return { noCanvas: true };
+      const r = c.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height, scrollY: window.scrollY };
+    });
+    if (!box || box.noCanvas) return box;
+    const cdp = await context.newCDPSession(page);
+    const pt = (y) => [{ x: Math.round(box.x), y: Math.round(y) }];
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pt(box.y + box.h * 0.3) });
+    for (let i = 1; i <= 8; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: pt(box.y + box.h * 0.3 - i * 25) });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(600);
+    const after = await page.evaluate(() => window.scrollY);
+    return { before: box.scrollY, after };
+  } finally { await context.close(); }
 }
 
 async function keyboard(page) {
@@ -331,7 +366,9 @@ try {
     for (const width of WIDTHS) {
       const height = width <= 480 ? 844 : width <= 900 ? 1024 : 900;
       const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, hasTouch: width <= 900 });
-      const { page, errors } = await open(context, path);
+      const expectStatus = pg.status || 200;
+      const { page, errors, status } = await open(context, path, { expectStatus });
+      if (width === WIDTHS[0]) record(path, width, 'default', 'http-status', status === expectStatus ? 'pass' : 'fail', `${status ?? 'no response'} (expected ${expectStatus}${expectStatus === 200 ? '; set "status": 404 in check.json for a not-found page' : ''})`);
       await autoScroll(page);
       await page.screenshot({ path: join(OUT, 'screens', `${name}-${width}.png`), fullPage: true }).catch(() => {});
       const m = await page.evaluate(measure, { mode });
@@ -409,6 +446,34 @@ try {
         record(path, width, `state:${state}`, 'renders', se.length || ov > 1 ? 'fail' : 'pass', [se.length && se.slice(0, 3).join(' | '), ov > 1 && `${ov}px overflow`].filter(Boolean).join('; ') || 'no errors, no overflow');
         await sctx.close();
       }
+    }
+
+    // Dark mode: if the page changes under prefers-color-scheme: dark, check its text contrast there too.
+    {
+      const W = WIDTHS[WIDTHS.length - 1];
+      const bgOf = async (scheme) => {
+        const c = await browser.newContext({ viewport: { width: W, height: 900 }, colorScheme: scheme });
+        const { page: p } = await open(c, path, { expectStatus: pg.status || 200 });
+        const bg = await p.evaluate(() => getComputedStyle(document.body).backgroundColor + '|' + getComputedStyle(document.documentElement).backgroundColor);
+        return { c, p, bg };
+      };
+      const light = await bgOf('light'); await light.c.close();
+      const dark = await bgOf('dark');
+      if (dark.bg === light.bg) record(path, W, 'dark', 'dark-mode', 'info', 'page looks the same under prefers-color-scheme: dark (no dark theme, or it is toggled another way)');
+      else {
+        await autoScroll(dark.p);
+        const dm = await dark.p.evaluate(measure, { mode: pg.mode || 'persuade' });
+        await dark.p.screenshot({ path: join(OUT, 'screens', `${name}-${W}-dark.png`), fullPage: true }).catch(() => {});
+        record(path, W, 'dark', 'text-contrast', dm.contrast.failing.length ? 'fail' : 'pass', dm.contrast.failing.length ? dm.contrast.failing.slice(0, 6).join('; ') : `${dm.contrast.checked} text elements OK in dark mode`);
+      }
+      await dark.c.close();
+    }
+
+    // Touch scrolling over 3D: a swipe on the canvas must still scroll the page on phones.
+    if (pg.has3D !== false) {
+      const t = await touchScroll(browser, path, Math.min(WIDTHS[0], 430));
+      if (t && t.noCanvas) record(path, Math.min(WIDTHS[0], 430), 'touch', '3d-touch-scroll', 'warn', 'scene container found but no canvas mounted at ?orchid-tier=2; check by hand on a phone');
+      else if (t) record(path, Math.min(WIDTHS[0], 430), 'touch', '3d-touch-scroll', t.after > t.before + 20 ? 'pass' : 'fail', t.after > t.before + 20 ? `swipe over the canvas scrolled the page ${Math.round(t.after - t.before)}px` : 'a vertical swipe over the canvas did not scroll the page: set touch-action: pan-y on the canvas (controls often set it to none); see references/3d.md');
     }
 
     // WCAG 1.4.10 Reflow: usable at 320 CSS px (400% zoom on a 1280 px screen) without horizontal scrolling.

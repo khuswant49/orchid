@@ -58,7 +58,9 @@ Then check the toolchain and companions:
 ```bash
 node <orchid>/scripts/setup.mjs
 ```
-It reports Node, Playwright's Chromium, and which companion skills and hooks are installed, with the exact command for each missing piece. Missing Playwright is required: ask once and install it (`setup.mjs --install playwright`). For missing companions (Impeccable with its edit hook, Emil's `review-animations` and `break-ui`, Motion's skill and docs server), offer them **once**, in one question, with what each adds (see `references/companions.md`). Install only what the user agrees to, with `setup.mjs --install <name>`; installing changes their Claude Code setup, so never do it unasked. In fast mode, don't ask: work without them and say so in the report. Newly installed skills load in the next Claude Code session; the `npx` checks (`impeccable detect`, `@google/design.md lint`) work immediately either way.
+It reports Node, Playwright's Chromium, and which companion skills and hooks are installed, with the exact command for each missing piece. Missing Playwright is required: ask once and install it (`setup.mjs --install playwright`). It prints Orchid's version and warns if other copies of Orchid are installed. If `scripts/setup.mjs` doesn't exist at all, this copy of Orchid is outdated: tell the user once (current version: github.com/khuswant49/orchid) and carry on.
+
+For missing companions (Impeccable with its edit hook, Emil's `review-animations` and `break-ui`, Motion's skill and docs server), offer them **once**, in one question, with what each adds (see `references/companions.md`). Install only what the user agrees to, with `setup.mjs --install <name>`; installing changes their Claude Code setup, so never do it unasked. In fast mode, don't ask: work without them and say so in the report. Newly installed skills load in the next Claude Code session; the `npx` checks (`impeccable detect`, `@google/design.md lint`) work immediately either way.
 
 Pick the stack:
 - **Existing project** → its stack, whatever it is.
@@ -99,7 +101,7 @@ Read `references/design-system.md`, `references/typography.md` and `references/c
 - Write `DESIGN.md` from `templates/DESIGN.md`: colour roles in OKLCH with dark mode, type pairing and scale, spacing, radii, elevation, motion tokens, component tokens, do's and don'ts.
 - Generate the locked theme from `templates/theme.css`. It resets Tailwind's default palette, fonts, radii, shadows, type sizes and spacing, so off-system classes (`bg-indigo-500`, `shadow-md`, `p-13`) produce no CSS at all. Tailwind ignores them silently, so `check-source.mjs` is what flags them.
 - Check every text/surface pair: `node <orchid>/scripts/contrast.mjs check DESIGN.md`.
-- Lint: `npx @google/design.md lint DESIGN.md` (fix every error).
+- Lint: `npx @google/design.md lint DESIGN.md` (fix every error). The first run downloads the package and can take a few minutes. It must print a result; if it prints nothing or hangs, record the lint as **not run**, never as passed.
 - Build the base components (button, link, input, card, nav, footer) and a specimen page at `/orchid-specimen` (excluded from the sitemap) that shows type scale, colours and components together. Look at it before building pages: problems are cheapest here.
 
 ### 6. Page plans
@@ -144,7 +146,7 @@ node <orchid>/scripts/check-source.mjs --root .
 NEXT_PUBLIC_ORCHID_PROBES=1 npx next build && npx next start -p 3000
 node <orchid>/scripts/check-page.mjs --url http://localhost:3000 --config .orchid/check.json
 ```
-Write `.orchid/check.json` from the sitemap first: pages with their modes and states (format in `scripts/README.md`). For other stacks, use their production build and server in place of the Next.js commands. The markers the checks rely on (`data-cta="primary"`, `data-orchid-placeholder`, `?orchid-state=`) are listed in `scripts/README.md`. The page script tests 390, 768 and 1440 px, reflow at 320 px, a reduced-motion run and a WebGL-disabled run, and writes `.orchid/checks/report.json`, `summary.md` and screenshots.
+Write `.orchid/check.json` from the sitemap first: pages with their modes and states, and the not-found page with `"status": 404` (format in `scripts/README.md`). For other stacks, use their production build and server in place of the Next.js commands. The markers the checks rely on (`data-cta="primary"`, `data-orchid-placeholder`, `?orchid-state=`) are listed in `scripts/README.md`. The page script tests 390, 768 and 1440 px, reflow at 320 px, dark mode (when the site has one), a reduced-motion run, a WebGL-disabled run and touch scrolling over any 3D scene, and writes `.orchid/checks/report.json`, `summary.md` and screenshots.
 
 Add companion checks where suitable (`references/companions.md`): `npx impeccable detect --json .` on the source and on the running URL; Emil's `review-animations` after motion work; `break-ui` on data components.
 
@@ -152,7 +154,7 @@ Walk each page's **acceptance checks** in the browser (Playwright or by hand) an
 
 Then **look** at the screenshots at all three widths against the thesis and `references/slop-tells.md`. Some qualities only a look can catch: rhythm, whether the peak lands, whether it feels like the direction.
 
-Fix the three most severe problems, re-run, look again. Stop after 3 rounds. Anything still failing goes in the report with the reason.
+Fix the three most severe problems, re-run, look again. Stop after 3 rounds of fixing failures; small polish found while looking (an alignment slip, a gap) can be fixed afterwards as long as the checks are re-run. Anything still failing goes in the report with the reason.
 
 ### 10. Report ⏸
 

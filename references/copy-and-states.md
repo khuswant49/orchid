@@ -29,6 +29,8 @@ When real content is missing, use placeholders that are obviously placeholders a
 - Images: a neutral block with the needed spec written on it ("Screenshot, 1600×1000, project X home page").
 - Mark each with `data-orchid-placeholder` so the check script counts them and the report lists them.
 
+Placeholders are for drafts and data views. A persuade or showcase page that the user will send to people shouldn't ship with visible placeholder boxes: they read as unfinished. Before handover, either show the content that exists and leave the slot out, or ask the user whether a visible placeholder is acceptable. Everything missing still goes in `needs.md`.
+
 Never fill gaps with invented metrics, testimonials, client names or logos.
 
 ## Interactions that work

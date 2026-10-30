@@ -20,6 +20,24 @@ function Inspector({ probes, tier }: { probes: Probe[]; tier: Tier }) {
   return null;
 }
 
+/**
+ * Orbit/drag controls set touch-action: none on the canvas, which traps vertical swipes on phones
+ * (the page can't be scrolled past the scene). Keep vertical panning for the page; horizontal drags
+ * still reach the controls. Remove only if the scene genuinely needs vertical drags.
+ */
+function KeepPageScroll() {
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    const el = gl.domElement;
+    const set = () => { if (el.style.touchAction !== 'pan-y') el.style.touchAction = 'pan-y'; };
+    set();
+    const mo = new MutationObserver(set);
+    mo.observe(el, { attributes: true, attributeFilter: ['style'] });
+    return () => mo.disconnect();
+  }, [gl]);
+  return null;
+}
+
 export default function SceneCanvas({ tier, probes, frameloop, camera, onDrawn, children }: {
   tier: Tier; probes: Probe[]; frameloop: CanvasProps['frameloop']; camera?: CanvasProps['camera'];
   onDrawn: () => void; children: ReactNode;
@@ -38,6 +56,7 @@ export default function SceneCanvas({ tier, probes, frameloop, camera, onDrawn, 
       <AdaptiveDpr />
       <Suspense fallback={null}>{children}</Suspense>
       <Inspector probes={probes} tier={tier} />
+      <KeepPageScroll />
     </Canvas>
   );
 }

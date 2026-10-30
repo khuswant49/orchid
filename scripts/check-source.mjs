@@ -3,7 +3,7 @@
 //   node check-source.mjs [--root .] [--out .orchid/checks] [--allow-fonts "Inter,Roboto"] [--json]
 // Exit code 1 when any check fails. Warnings need a human look but don't fail.
 import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join, relative, extname } from 'node:path';
+import { join, relative, extname, basename } from 'node:path';
 
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(`--${n}`); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
@@ -71,7 +71,10 @@ function deadClasses(cls) {
   }
   return dead;
 }
-const files = walk(ROOT).filter((f) => CODE_EXT.has(extname(f)) || STYLE_EXT.has(extname(f)) || TEXT_EXT.has(extname(f)));
+// Project docs (PRODUCT.md, DESIGN.md, README.md, FEEDBACK.md, .orchid/…) describe the site and may quote
+// banned words as things to avoid; only page content is checked.
+const isDoc = (f) => /[\\/]\.(?:orchid|claude|agents)[\\/]/.test(f) || (extname(f) === '.md' && /^[A-Z][A-Z0-9_-]*\.md$/.test(basename(f)));
+const files = walk(ROOT).filter((f) => (CODE_EXT.has(extname(f)) || STYLE_EXT.has(extname(f)) || TEXT_EXT.has(extname(f))) && !isDoc(f));
 
 for (const abs of files) {
   const file = relative(ROOT, abs) || abs;

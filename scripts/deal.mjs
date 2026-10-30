@@ -52,7 +52,15 @@ function rng(seed) {
 function deal() {
   const all = load();
   const modes = (opt('modes', '') || '').split(',').map((s) => s.trim()).filter(Boolean);
-  const brief = (opt('brief', '') || '').toLowerCase();
+  let brief = (opt('brief', '') || '').toLowerCase();
+  // Words people use for the same kind of site, so tags still match ("landing page for my job hunt" → portfolio).
+  const SYNONYMS = [
+    [/personal (?:site|website|page)|landing page for (?:me|my(?:self)?)|job|internship|hire me|r[ée]sum[ée]|\bcv\b|recruiter|about me/, 'portfolio'],
+    [/web developer|full[- ]?stack|front[- ]?end|back[- ]?end|software engineer|programmer|coder/, 'developer'],
+    [/online (?:shop|store)|sell (?:online|products)|products? catalogu?e/, 'ecommerce shop'],
+    [/restaurant|caf[eé]|bakery|menu/, 'food'],
+  ];
+  for (const [re, add] of SYNONYMS) if (re.test(brief) && !brief.includes(add)) brief += ` ${add}`;
   const count = Number(opt('count', 3));
   const scheme = opt('scheme');
   const exclude = new Set((opt('exclude', '') || '').split(',').filter(Boolean));
