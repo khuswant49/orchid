@@ -53,8 +53,12 @@ Each phase lists what to read, what to do and what it writes. Working files live
 Read before writing anything:
 - `package.json`, framework, Tailwind version and config, existing CSS variables, components folder.
 - `PRODUCT.md`, `DESIGN.md`, brand assets (logo, fonts, colours) if present.
-- Which companion skills are in your available-skills list (see `references/companions.md`).
-- Whether Node ≥ 20 and Playwright's Chromium are available (`npx playwright install chromium` if not).
+
+Then check the toolchain and companions:
+```bash
+node <orchid>/scripts/setup.mjs
+```
+It reports Node, Playwright's Chromium, and which companion skills and hooks are installed, with the exact command for each missing piece. Missing Playwright is required: ask once and install it (`setup.mjs --install playwright`). For missing companions (Impeccable with its edit hook, Emil's `review-animations` and `break-ui`), offer them **once**, in one question, with what each adds (see `references/companions.md`). Install only what the user agrees to, with `setup.mjs --install <name>`; installing changes their Claude Code setup, so never do it unasked. In fast mode, don't ask: work without them and say so in the report. Newly installed skills load in the next Claude Code session; the `npx` checks (`impeccable detect`, `@google/design.md lint`) work immediately either way.
 
 Pick the stack:
 - **Existing project** → its stack, whatever it is.
@@ -63,6 +67,8 @@ Pick the stack:
 - WebGPU only when the user asks for it (`references/3d.md` explains why).
 
 Write `.orchid/context.json`: route, stack, existing assets, companions found, tools available.
+
+**While Orchid is running, Orchid owns the design flow.** If Impeccable is installed, don't start its `init`, `shape`, `craft` or new-work flows mid-run; they'd compete with the dealer and the page plans. Its edit hook, detector and review commands are welcome (`references/companions.md` says how to handle their findings).
 
 ### 2. Brief ⏸ (only if facts are missing)
 
@@ -157,6 +163,8 @@ Route: <route> · Direction: <name> · Thesis: <one sentence>
 ## Companion findings rejected (finding → reason)
 ## How to extend
 DESIGN.md is the source of truth. For new pages, ask for "more pages with Orchid".
+## Next
+If Impeccable is installed: `/impeccable live` to pick between variants of any element in the browser.
 ```
 
 ## Reference map

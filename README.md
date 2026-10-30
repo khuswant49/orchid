@@ -16,7 +16,17 @@ node --version              # needs 20 or later
 npx playwright install chromium
 ```
 
-Optional companions (Orchid works without them): Impeccable's detector runs through `npx impeccable detect` with nothing installed; Emil Kowalski's skills add animation reviews and edge-case stress tests.
+### Companion skills (optional)
+
+Orchid works alone, but it's better with these. On its first run it checks what you have and offers to install the rest, asking before it changes anything. You can also check or install yourself:
+
+```bash
+node ~/.claude/skills/orchid/scripts/setup.mjs                      # what's installed, what's missing
+node ~/.claude/skills/orchid/scripts/setup.mjs --install impeccable  # skill + edit hook that catches slop as code is written
+node ~/.claude/skills/orchid/scripts/setup.mjs --install emil        # review-animations + break-ui only
+```
+
+Restart Claude Code afterwards so new skills load. With Impeccable installed too, start design work with `/orchid` so it's clear which skill leads; Orchid uses Impeccable's detector, hook, reviews and `/impeccable live` along the way.
 
 ## Use
 
