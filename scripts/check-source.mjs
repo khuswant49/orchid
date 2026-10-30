@@ -11,7 +11,7 @@ const ROOT = opt('root', '.');
 const OUT = opt('out', null);
 const allowFonts = new Set((opt('allow-fonts', '') || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean));
 
-const SKIP_DIRS = new Set(['node_modules', '.next', 'dist', 'build', 'out', '.git', '.orchid', 'coverage', '.vercel', '.turbo', 'public', '.cache', 'vendor']);
+const SKIP_DIRS = new Set(['node_modules', '.next', 'dist', 'build', 'out', '.git', '.orchid', 'coverage', '.vercel', '.turbo', 'public', '.cache', 'vendor', '.claude', '.agents', '.impeccable', '.vscode', '.idea']);
 const CODE_EXT = new Set(['.tsx', '.jsx', '.ts', '.js', '.mjs', '.vue', '.svelte', '.astro']);
 const STYLE_EXT = new Set(['.css', '.scss', '.sass', '.less']);
 const TEXT_EXT = new Set(['.md', '.mdx', '.html']);
@@ -73,7 +73,7 @@ function deadClasses(cls) {
 }
 // Project docs (PRODUCT.md, DESIGN.md, README.md, FEEDBACK.md, .orchid/…) describe the site and may quote
 // banned words as things to avoid; only page content is checked.
-const isDoc = (f) => /[\\/]\.(?:orchid|claude|agents)[\\/]/.test(f) || (extname(f) === '.md' && /^[A-Z][A-Z0-9_-]*\.md$/.test(basename(f)));
+const isDoc = (f) => /(?:^|[\\/])\.(?:orchid|claude|agents|impeccable)(?:[\\/]|$)/.test(f) || (extname(f) === '.md' && /^[A-Z][A-Z0-9_-]*\.md$/.test(basename(f)));
 const files = walk(ROOT).filter((f) => (CODE_EXT.has(extname(f)) || STYLE_EXT.has(extname(f)) || TEXT_EXT.has(extname(f))) && !isDoc(f));
 
 for (const abs of files) {

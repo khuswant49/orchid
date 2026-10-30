@@ -133,7 +133,7 @@ function record() {
   if (!load().some((d) => d.id === id)) { console.error(`Unknown direction: ${id}`); process.exit(1); }
   if (!useHistory) { console.log('History disabled (ORCHID_NO_HISTORY).'); return; }
   const h = readHistory();
-  h.push({ id, project: opt('project', ''), date: new Date().toISOString().slice(0, 10) });
+  h.push({ id, project: opt('project', ''), date: new Date().toLocaleDateString('en-CA') });
   mkdirSync(dirname(HISTORY), { recursive: true });
   writeFileSync(HISTORY, JSON.stringify(h.slice(-50), null, 2));
   console.log(`Recorded ${id} in ${HISTORY}`);

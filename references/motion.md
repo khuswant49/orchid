@@ -92,7 +92,7 @@ A scroll scene pins a section and maps scroll position to a timeline. Use 2–3 
 
 ### Recipe: scroll-scrubbed frame sequence
 
-A video's frames are drawn to a canvas, and scroll picks the frame (the effect on Apple product pages). Use `templates/three/ScrollSequence.tsx`.
+A video's frames are drawn to a canvas, and scroll picks the frame (the effect on Apple product pages). Use `templates/three/ScrollSequence.tsx`. Pass `fit="contain"` for screen recordings, so a 16:9 recording pinned on a portrait phone still shows the whole interface; the default `cover` suits filmed footage.
 
 1. **Video:** 3–5 s, locked camera, clean background matching the direction, a real subject (the product, the user's own site in use). If the user makes it with another tool, write them a shot brief: duration, resolution, framing, motion, background, what's on screen.
 2. **Frames:**

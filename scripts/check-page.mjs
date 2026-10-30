@@ -279,9 +279,11 @@ async function keyboard(page) {
       await page.keyboard.press('Tab');
       const info = await page.evaluate(() => {
         const el = document.activeElement; if (!el || el === document.body) return null;
+        window.__orchidFocusIds ||= new WeakMap(); window.__orchidFocusN ||= 0;
+        if (!window.__orchidFocusIds.has(el)) window.__orchidFocusIds.set(el, ++window.__orchidFocusN);
         const cs = getComputedStyle(el);
         const ring = (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || (cs.boxShadow && cs.boxShadow !== 'none');
-        const key = el.outerHTML.slice(0, 120) + el.getBoundingClientRect().top;
+        const key = window.__orchidFocusIds.get(el);
         return { key, ring, label: `${el.tagName.toLowerCase()} "${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 30)}"` };
       });
       if (!info) continue;
@@ -401,7 +403,7 @@ try {
 
       if (width === WIDTHS[WIDTHS.length - 1]) {
         const k = await keyboard(page);
-        record(path, width, 'default', 'keyboard-reach', k.reached >= Math.min(k.total, 120) * 0.8 ? 'pass' : 'fail', `${k.reached} of ${k.total} focusable elements reached by Tab`);
+        record(path, width, 'default', 'keyboard-reach', k.reached >= Math.min(k.total, 120) * 0.8 ? 'pass' : 'fail', `${k.reached} distinct elements reached by Tab; ${k.total} visible focusable elements on the page (skip links and other elements that only show on focus can make the first number larger)`);
         record(path, width, 'default', 'focus-visible', k.noRing ? 'fail' : 'pass', k.noRing ? `${k.noRing} without a visible focus indicator: ${k.noRingEx.join('; ')}` : 'all focus states visible');
       }
 
@@ -412,7 +414,7 @@ try {
           else {
             record(path, width, 'default', '3d-dpr', s.info.dpr <= 2 ? 'pass' : 'fail', `dpr ${s.info.dpr}, tier ${s.info.tier}${s.forced ? ' (forced: headless browser has no GPU)' : ''}`);
             record(path, width, 'default', '3d-draw-calls', s.info.calls < 100 ? 'pass' : 'fail', `${s.info.calls} draw calls, ${s.info.triangles} triangles`);
-            record(path, width, 'default', '3d-frame-time', s.p95 <= (width <= 480 ? 33.4 : 16.8) * 1.15 ? 'pass' : 'warn', `p95 frame ${s.p95} ms (headless; confirm on real hardware)`);
+            record(path, width, 'default', '3d-frame-time', s.p95 <= (width <= 480 ? 33.4 : 16.8) * 1.15 ? 'pass' : 'warn', `p95 frame ${s.p95} ms (headless, no GPU; with frameloop="demand" this measures page frames during the probes, not steady rendering; confirm on real hardware)`);
             for (const pr of s.probes) record(path, width, 'default', `3d-probe:${pr.name}`, pr.pass ? 'pass' : 'fail', pr.pass ? 'interaction works' : `interaction failed${pr.error ? `: ${pr.error}` : ''}`);
             if (!s.probes.length) record(path, width, 'default', '3d-probes', 'warn', 'no probes registered; add one per interaction');
           }
@@ -449,8 +451,7 @@ try {
     }
 
     // Dark mode: if the page changes under prefers-color-scheme: dark, check its text contrast there too.
-    {
-      const W = WIDTHS[WIDTHS.length - 1];
+    for (const W of [...new Set([WIDTHS[0], WIDTHS[WIDTHS.length - 1]])]) {
       const bgOf = async (scheme) => {
         const c = await browser.newContext({ viewport: { width: W, height: 900 }, colorScheme: scheme });
         const { page: p } = await open(c, path, { expectStatus: pg.status || 200 });
@@ -481,7 +482,7 @@ try {
       const fctx = await browser.newContext({ viewport: { width: 320, height: 640 }, hasTouch: true });
       const { page: fp } = await open(fctx, path);
       const ov = await fp.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-      if (ov > 1) await fp.screenshot({ path: join(OUT, 'screens', `${name}-320-reflow.png`), fullPage: true }).catch(() => {});
+      await fp.screenshot({ path: join(OUT, 'screens', `${name}-320.png`), fullPage: true }).catch(() => {});
       record(path, 320, 'reflow', 'reflow-320', ov > 1 ? 'fail' : 'pass', ov > 1 ? `${ov}px horizontal scroll at 320px (WCAG 1.4.10)` : 'no horizontal scroll at 320px');
       await fctx.close();
     }

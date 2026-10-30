@@ -58,14 +58,14 @@ Then check the toolchain and companions:
 ```bash
 node <orchid>/scripts/setup.mjs
 ```
-It reports Node, Playwright's Chromium, and which companion skills and hooks are installed, with the exact command for each missing piece. Missing Playwright is required: ask once and install it (`setup.mjs --install playwright`). It prints Orchid's version and warns if other copies of Orchid are installed. If `scripts/setup.mjs` doesn't exist at all, this copy of Orchid is outdated: tell the user once (current version: github.com/khuswant49/orchid) and carry on.
+It reports Node, Playwright's Chromium, and which companion skills and hooks are installed, with the exact command for each missing piece. Missing Playwright is required: ask once and install it (`setup.mjs --install playwright`). It prints Orchid's version and warns if other copies of Orchid are installed. If `scripts/setup.mjs` doesn't exist at all, this copy of Orchid is outdated: tell the user once (current version: github.com/khuswant49/orchid) and carry on. If the skill list shows Orchid twice (for example `orchid` and `anthropic-skills:orchid`, a copy uploaded to claude.ai), the two may differ: say which one is running, and suggest the user keep one.
 
-For missing companions (Impeccable with its edit hook, Emil's `review-animations` and `break-ui`, Motion's skill and docs server), offer them **once**, in one question, with what each adds (see `references/companions.md`). Install only what the user agrees to, with `setup.mjs --install <name>`; installing changes their Claude Code setup, so never do it unasked. In fast mode, don't ask: work without them and say so in the report. Newly installed skills load in the next Claude Code session; the `npx` checks (`impeccable detect`, `@google/design.md lint`) work immediately either way.
+For missing companions (Impeccable with its edit hook, Emil's `review-animations` and `break-ui`, Motion's skill and docs server), offer them **once**, in one question, with what each adds (see `references/companions.md`). Install only what the user agrees to, with `setup.mjs --install <name>`; installing changes their Claude Code setup, so never do it unasked. In fast mode, don't ask: work without them and say so in the report. Newly installed skills and MCP servers load in the next Claude Code session; hooks and the `npx` checks (`impeccable detect`, `lint-design.mjs`) work immediately. Some companion skills can only be started by the user (`disable-model-invocation: true`; `setup.mjs` marks them "user-run only"): ask the user to run them, or apply their standards file by hand and say so in the report.
 
 Pick the stack:
 - **Existing project** → its stack, whatever it is.
-- **New multi-page project** → Next.js (App Router) + TypeScript + Tailwind CSS v4 + shadcn/ui components restyled through tokens. Motion for component interactions, GSAP + ScrollTrigger for scroll choreography, Lenis only on persuade and showcase pages. React Three Fiber + drei on three.js's WebGL renderer for 3D.
-- **A single quick page, demo or prototype** → one HTML file with three.js and GSAP as ES modules. No Tailwind: tokens become CSS custom properties copied from `DESIGN.md`, and the React templates are followed by hand (poster image first, scene loaded with a dynamic `import()` when near the viewport).
+- **New project, including a one-page site that will be published** (a portfolio, a landing page) → Next.js (App Router) + TypeScript + Tailwind CSS v4 + shadcn/ui components restyled through tokens. Motion for component interactions, GSAP + ScrollTrigger for scroll choreography, Lenis only on persuade and showcase pages. React Three Fiber + drei on three.js's WebGL renderer for 3D.
+- **A quick demo or prototype, or when the user asks for plain HTML** → one HTML file with three.js and GSAP as ES modules. No Tailwind: tokens become CSS custom properties copied from `DESIGN.md`, and the React templates are followed by hand (poster image first, scene loaded with a dynamic `import()` when near the viewport).
 - WebGPU only when the user asks for it (`references/3d.md` explains why).
 
 Write `.orchid/context.json`: route, stack, existing assets, companions found, tools available.
@@ -101,8 +101,8 @@ Read `references/design-system.md`, `references/typography.md` and `references/c
 - Write `DESIGN.md` from `templates/DESIGN.md`: colour roles in OKLCH with dark mode, type pairing and scale, spacing, radii, elevation, motion tokens, component tokens, do's and don'ts.
 - Generate the locked theme from `templates/theme.css`. It resets Tailwind's default palette, fonts, radii, shadows, type sizes and spacing, so off-system classes (`bg-indigo-500`, `shadow-md`, `p-13`) produce no CSS at all. Tailwind ignores them silently, so `check-source.mjs` is what flags them.
 - Check every text/surface pair: `node <orchid>/scripts/contrast.mjs check DESIGN.md`.
-- Lint: `npx @google/design.md lint DESIGN.md` (fix every error). The first run downloads the package and can take a few minutes. It must print a result; if it prints nothing or hangs, record the lint as **not run**, never as passed.
-- Build the base components (button, link, input, card, nav, footer) and a specimen page at `/orchid-specimen` (excluded from the sitemap) that shows type scale, colours and components together. Look at it before building pages: problems are cheapest here.
+- Lint: `node <orchid>/scripts/lint-design.mjs DESIGN.md` (fix every error). It runs `npx @google/design.md lint`, falls back to the cached package when npx prints nothing (seen on Windows), and exits 2 if no result came back: record that as **not run**, never as passed. The first run downloads the package and can take a few minutes.
+- Build the base components (button, link, input, card, nav, footer) and a specimen page (now, or right after the page plans when components depend on them; either way before any page) at `/orchid-specimen` (excluded from the sitemap) that shows type scale, colours and components together. Look at it before building pages: problems are cheapest here.
 
 ### 6. Page plans
 
@@ -148,9 +148,11 @@ node <orchid>/scripts/check-page.mjs --url http://localhost:3000 --config .orchi
 ```
 Write `.orchid/check.json` from the sitemap first: pages with their modes and states, and the not-found page with `"status": 404` (format in `scripts/README.md`). For other stacks, use their production build and server in place of the Next.js commands. The markers the checks rely on (`data-cta="primary"`, `data-orchid-placeholder`, `?orchid-state=`) are listed in `scripts/README.md`. The page script tests 390, 768 and 1440 px, reflow at 320 px, dark mode (when the site has one), a reduced-motion run, a WebGL-disabled run and touch scrolling over any 3D scene, and writes `.orchid/checks/report.json`, `summary.md` and screenshots.
 
-Add companion checks where suitable (`references/companions.md`): `npx impeccable detect --json .` on the source and on the running URL; Emil's `review-animations` after motion work; `break-ui` on data components.
+Add companion checks where suitable (`references/companions.md`): `npx impeccable detect --json .` on the source and on the running URL; Emil's `review-animations` after motion work and `break-ui` on data components (both are user-run: ask the user to run them, or apply their STANDARDS.md by hand).
 
 Walk each page's **acceptance checks** in the browser (Playwright or by hand) and record pass or fail in the report; a page that looks finished but fails a check isn't finished.
+
+Full-page screenshots freeze CSS scroll-driven reveals at their starting state and show pinned scenes as empty bands; judge layout from the `-reduced` captures (the finished page) and motion in a real browser.
 
 Then **look** at the screenshots at all three widths against the thesis and `references/slop-tells.md`. Some qualities only a look can catch: rhythm, whether the peak lands, whether it feels like the direction.
 

@@ -9,6 +9,7 @@ All scripts are plain Node (≥ 20) with no dependencies, except `check-page.mjs
 | `check-source.mjs` | Source checks: tokens, dead classes, banned fonts, easing, reduced motion, copy, dark patterns |
 | `check-page.mjs` | Rendered checks at 3 widths, reflow at 320 px, reduced motion, WebGL off, 3D probes, scroll sequences, LCP/CLS |
 | `capture.mjs` | Clean desktop and mobile screenshots of a live site (for showcasing the user's work) |
+| `lint-design.mjs` | Lints DESIGN.md with `@google/design.md`; falls back to the cached package when `npx` prints nothing; exits 2 when no result came back (record as not run) |
 | `setup.mjs` | Status of Node, Playwright, companion skills and Impeccable's hook; `--install <playwright\|impeccable\|emil\|motion\|taste>` runs one installer (only with the user's agreement) |
 
 ## Conventions the checks rely on
@@ -55,7 +56,8 @@ node <orchid>/scripts/check-page.mjs --url http://localhost:3000 --config .orchi
 - `has3D: false` skips the WebGL-off run for pages without scenes.
 - `perf: false` skips the throttled mobile LCP/CLS run.
 - `status` is the HTTP status the page should return (default 200). Use 404 for the not-found page so its own status isn't counted as an error.
-- Every page also gets: a 320 px reflow run, a dark-mode contrast run when the page changes under `prefers-color-scheme: dark`, and, for pages with a scene, a real touch swipe over the canvas to check the page still scrolls.
+- Every page also gets: a 320 px reflow run (screenshot `<page>-320.png`), a dark-mode contrast run at the narrowest and widest widths when the page changes under `prefers-color-scheme: dark`, and, for pages with a scene, a real touch swipe over the canvas to check the page still scrolls.
+- Full-page screenshots can't show CSS scroll-driven reveals (they stay at their starting state) or pinned scenes (an empty band the height of the pin). Judge layout from the `-reduced` captures.
 
 ## Output
 

@@ -11,7 +11,14 @@
 */
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* Dark mode follows the visitor's system setting. A toggle can force one by putting
+   class="dark" or class="light" on <html>. check-page.mjs tests the system setting. */
+@custom-variant dark {
+  &:where(.dark, .dark *) { @slot; }
+  @media (prefers-color-scheme: dark) {
+    &:where(:not(.light, .light *)) { @slot; }
+  }
+}
 
 /* ---------- Layer 1: primitives ---------- */
 @theme {
@@ -153,6 +160,28 @@
   --border: oklch(0.29 0.009 260);
   --ring: oklch(0.70 0.13 255);
   color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: oklch(0.17 0.006 260);
+    --foreground: oklch(0.94 0.004 250);
+    --surface: oklch(0.20 0.007 260);
+    --surface-foreground: oklch(0.94 0.004 250);
+    --muted: oklch(0.23 0.008 260);
+    --muted-foreground: oklch(0.70 0.008 250);
+    --primary: oklch(0.94 0.004 250);
+    --primary-foreground: oklch(0.17 0.006 260);
+    --accent: oklch(0.28 0.04 258);
+    --accent-foreground: oklch(0.90 0.05 255);
+    --destructive: oklch(0.68 0.17 27);
+    --destructive-foreground: oklch(0.16 0.006 260);
+    --success: oklch(0.72 0.12 150);
+    --warning: oklch(0.80 0.13 80);
+    --border: oklch(0.29 0.009 260);
+    --ring: oklch(0.70 0.13 255);
+    color-scheme: dark;
+  }
 }
 
 @layer base {

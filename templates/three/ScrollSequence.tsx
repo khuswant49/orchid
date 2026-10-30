@@ -32,14 +32,17 @@ type Props = {
   alt: string;
   /** How many viewport heights the sequence stays pinned (keep to 3 or fewer). */
   screens?: number;
+  /** 'cover' fills the frame (filmed footage); 'contain' shows the whole frame (screen recordings, UI). */
+  fit?: 'cover' | 'contain';
   children?: ReactNode;
   className?: string;
 };
 
+const exposeHooks = process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_ORCHID_PROBES === '1';
 const pad = (n: number) => String(n).padStart(3, '0');
 const src = (set: FrameSet, i: number) => `${set.dir}/f_${pad(i + 1)}.${set.ext ?? 'webp'}`;
 
-export function ScrollSequence({ desktop, mobile, alt, screens = 2.5, children, className }: Props) {
+export function ScrollSequence({ desktop, mobile, alt, screens = 2.5, fit = 'cover', children, className }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const images = useRef<HTMLImageElement[]>([]);
@@ -74,8 +77,8 @@ export function ScrollSequence({ desktop, mobile, alt, screens = 2.5, children, 
       const draw = () => {
         const img = nearestLoaded(Math.round(state.current.frame));
         if (!img) return;
-        // object-fit: cover
-        const s = Math.max(el.width / img.naturalWidth, el.height / img.naturalHeight);
+        // object-fit: cover or contain
+        const s = (fit === 'contain' ? Math.min : Math.max)(el.width / img.naturalWidth, el.height / img.naturalHeight);
         const w = img.naturalWidth * s, h = img.naturalHeight * s;
         ctx.clearRect(0, 0, el.width, el.height);
         ctx.drawImage(img, (el.width - w) / 2, (el.height - h) / 2, w, h);
@@ -115,15 +118,16 @@ export function ScrollSequence({ desktop, mobile, alt, screens = 2.5, children, 
     return () => mm.revert();
   }, { scope: root });
 
-  // Expose a probe target for check-page.mjs (frame index after scrolling).
+  // Expose a probe target for check-page.mjs (frame index after scrolling), in the same builds as window.__scene.
   useEffect(() => {
+    if (!exposeHooks) return;
     (window as any).__sequence = { frame: () => Math.round(state.current.frame) };
     return () => { delete (window as any).__sequence; };
   }, []);
 
   return (
     <section ref={root} data-orchid-sequence className={`relative h-svh overflow-hidden ${className ?? ''}`}>
-      <img src={src(desktop, 0)} alt={alt} data-orchid-poster className="absolute inset-0 h-full w-full object-cover" fetchPriority="high" />
+      <img src={src(desktop, 0)} alt={alt} data-orchid-poster className={`absolute inset-0 h-full w-full ${fit === 'contain' ? 'object-contain' : 'object-cover'}`} fetchPriority="high" />
       <canvas ref={canvas} aria-hidden className="absolute inset-0 h-full w-full opacity-0 data-[active=true]:opacity-100" />
       {children && <div className="relative h-full">{children}</div>}
     </section>

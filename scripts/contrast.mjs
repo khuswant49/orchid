@@ -70,10 +70,12 @@ function check(file, asJson) {
   for (const scheme of ['light', 'dark']) {
     const p = sets[scheme];
     if (!p) continue;
-    for (const [fg, bg, min] of PAIRS) {
+    // Extra roles the project added (e.g. `note-foreground` on `note`) are checked too.
+    const extra = Object.keys(p).filter((k) => k.endsWith('-foreground') && p[k.slice(0, -11)] && !PAIRS.some(([f]) => f === k)).map((k) => [k, k.slice(0, -11), 4.5]);
+    for (const [fg, bg, min] of [...PAIRS, ...extra]) {
       if (!p[fg] || !p[bg]) continue;
       // A palette that defines surface-foreground puts only that text on surfaces.
-      if (bg === 'surface' && fg !== 'surface-foreground' && p['surface-foreground']) continue;
+      if (bg === 'surface' && fg === 'foreground' && p['surface-foreground']) continue;
       const r = contrast(p[fg], p[bg]);
       rows.push({ scheme, pair: `${fg} on ${bg}`, ratio: +fmt(r), min, pass: r >= min });
     }
