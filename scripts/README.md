@@ -9,7 +9,7 @@ All scripts are plain Node (≥ 20) with no dependencies, except `check-page.mjs
 | `check-source.mjs` | Source checks: tokens, dead classes, banned fonts, easing, reduced motion, copy, dark patterns |
 | `check-page.mjs` | Rendered checks at 3 widths, reduced motion, WebGL off, 3D probes, scroll sequences, LCP/CLS |
 | `capture.mjs` | Clean desktop and mobile screenshots of a live site (for showcasing the user's work) |
-| `setup.mjs` | Status of Node, Playwright, companion skills and Impeccable's hook; `--install <playwright\|impeccable\|emil\|taste>` runs one installer (only with the user's agreement) |
+| `setup.mjs` | Status of Node, Playwright, companion skills and Impeccable's hook; `--install <playwright\|impeccable\|emil\|motion\|taste>` runs one installer (only with the user's agreement) |
 
 ## Conventions the checks rely on
 

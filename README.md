@@ -24,6 +24,7 @@ Orchid works alone, but it's better with these. On its first run it checks what 
 node ~/.claude/skills/orchid/scripts/setup.mjs                      # what's installed, what's missing
 node ~/.claude/skills/orchid/scripts/setup.mjs --install impeccable  # skill + edit hook that catches slop as code is written
 node ~/.claude/skills/orchid/scripts/setup.mjs --install emil        # review-animations + break-ui only
+node ~/.claude/skills/orchid/scripts/setup.mjs --install motion      # Motion's skill + free docs server (current API docs)
 ```
 
 Restart Claude Code afterwards so new skills load. With Impeccable installed too, start design work with `/orchid` so it's clear which skill leads; Orchid uses Impeccable's detector, hook, reviews and `/impeccable live` along the way.

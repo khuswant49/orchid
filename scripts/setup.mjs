@@ -2,7 +2,7 @@
 // Orchid setup: what's installed, what's missing, and the exact commands to fix it.
 //   node setup.mjs                 status report (default; changes nothing)
 //   node setup.mjs --json          the same, machine-readable
-//   node setup.mjs --install <playwright|impeccable|emil|taste> [--project]
+//   node setup.mjs --install <playwright|impeccable|emil|motion|taste> [--project]
 //                                  run one installer (only after the user has agreed)
 // Skills installed mid-session load in the next Claude Code session; npx-based checks work immediately.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -17,18 +17,25 @@ const CWD = process.cwd();
 const scopeProject = args.includes('--project');
 
 const INSTALL = {
-  playwright: { why: 'Required: page checks and screenshots', cmd: ['npx', ['--yes', 'playwright', 'install', 'chromium']] },
+  playwright: { why: 'Required: page checks and screenshots', cmds: [['npx', ['--yes', 'playwright', 'install', 'chromium']]] },
   impeccable: {
     why: 'Recommended: 62-rule slop detector on every edit (Claude Code hook), reviews, live variants',
-    cmd: ['npx', ['--yes', 'impeccable', 'install', '-y', '--providers=claude', `--scope=${scopeProject ? 'project' : 'global'}`]],
+    cmds: [['npx', ['--yes', 'impeccable', 'install', '-y', '--providers=claude', `--scope=${scopeProject ? 'project' : 'global'}`]]],
   },
   emil: {
     why: 'Recommended: review-animations and break-ui (motion review, edge-case fixtures)',
-    cmd: ['npx', ['--yes', 'skills@latest', 'add', 'emilkowalski/skills', '--skill', 'review-animations', '--skill', 'break-ui', '-a', 'claude-code', ...(scopeProject ? [] : ['-g']), '-y']],
+    cmds: [['npx', ['--yes', 'skills@latest', 'add', 'emilkowalski/skills', '--skill', 'review-animations', '--skill', 'break-ui', '-a', 'claude-code', ...(scopeProject ? [] : ['-g']), '-y']]],
+  },
+  motion: {
+    why: "Recommended: Motion's /motion skill plus its free docs server, so Motion APIs come from current docs, not memory",
+    cmds: [
+      ['npx', ['--yes', 'skills@latest', 'add', 'motiondivision/ai-kit', '--skill', 'motion', '-a', 'claude-code', ...(scopeProject ? [] : ['-g']), '-y']],
+      ['claude', ['mcp', 'add', '--transport', 'http', '--scope', scopeProject ? 'project' : 'user', 'motion', 'https://mcp.motion.dev']],
+    ],
   },
   taste: {
     why: 'Optional, only if the user wants its own pipeline (slow; its own art-direction dealer)',
-    cmd: ['npx', ['--yes', 'skills@latest', 'add', 'https://github.com/Leonxlnx/taste-skill', '--skill', 'design-taste-frontend', '-a', 'claude-code', ...(scopeProject ? [] : ['-g']), '-y']],
+    cmds: [['npx', ['--yes', 'skills@latest', 'add', 'https://github.com/Leonxlnx/taste-skill', '--skill', 'design-taste-frontend', '-a', 'claude-code', ...(scopeProject ? [] : ['-g']), '-y']]],
   },
 };
 
@@ -62,6 +69,13 @@ function hookInstalled() {
   return null;
 }
 
+function motionMcp() {
+  for (const f of [join(HOME, '.claude.json'), join(CWD, '.mcp.json')]) {
+    try { if (/mcp\.motion\.dev/.test(readFileSync(f, 'utf8'))) return f; } catch {}
+  }
+  return null;
+}
+
 function chromiumReady() {
   const require = createRequire(import.meta.url);
   for (const base of [import.meta.url, join(CWD, 'package.json')]) {
@@ -87,6 +101,7 @@ function status() {
     { item: 'Impeccable skill', ok: has('impeccable'), detail: has('impeccable') ? 'installed' : 'not installed (its detector still runs via npx)', fix: has('impeccable') ? null : 'impeccable' },
     { item: 'Impeccable edit hook', ok: !!hook, detail: hook ? `in ${hook}` : 'off', fix: hook ? null : has('impeccable') ? 'Run /impeccable hooks on (asks first)' : 'impeccable' },
     { item: "Emil's review-animations + break-ui", ok: has('review-animations') && has('break-ui'), detail: ['review-animations', 'break-ui'].filter((n) => has(n)).join(', ') || 'not installed', fix: has('review-animations') && has('break-ui') ? null : 'emil' },
+    { item: "Motion's skill + docs server", ok: has('motion') && !!motionMcp(), detail: [has('motion') && 'skill', motionMcp() && 'docs server'].filter(Boolean).join(' + ') || 'not installed', fix: has('motion') && motionMcp() ? null : 'motion' },
     { item: 'taste-skill (optional)', ok: true, optional: true, detail: has('design-taste-frontend', 'taste-skill') ? 'installed — Orchid will not call it unless asked' : 'not installed (not needed)', fix: null },
     { item: 'Anthropic frontend-design', ok: true, optional: true, detail: has('frontend-design') ? 'installed — redundant with Orchid; Orchid wins on conflicts' : 'not installed (not needed)', fix: null },
   ];
@@ -96,11 +111,12 @@ function status() {
 const run = (key) => {
   const spec = INSTALL[key];
   if (!spec) { console.error(`Unknown installer: ${key}. Choose: ${Object.keys(INSTALL).join(', ')}`); process.exit(1); }
-  const [cmd, a] = spec.cmd;
-  console.log(`$ ${cmd} ${a.join(' ')}`);
-  const r = spawnSync(cmd, a, { stdio: 'inherit', shell: process.platform === 'win32' });
-  if (r.status === 0) console.log(`\nDone. ${key === 'playwright' ? '' : 'Restart Claude Code (or start a new session) so the new skill loads.'}`);
-  process.exitCode = r.status ?? 1;
+  for (const [cmd, a] of spec.cmds) {
+    console.log(`$ ${cmd} ${a.join(' ')}`);
+    const r = spawnSync(cmd, a, { stdio: 'inherit', shell: process.platform === 'win32' });
+    if (r.status !== 0) { console.error(`\nFailed: ${cmd} ${a.join(' ')}`); process.exitCode = r.status ?? 1; return; }
+  }
+  console.log(`\nDone. ${key === 'playwright' ? '' : 'Restart Claude Code (or start a new session) so it loads.'}`);
 };
 
 const i = args.indexOf('--install');
@@ -118,7 +134,7 @@ else {
       console.log('\nTo fix (ask the user before installing anything):');
       for (const r of missing) {
         const spec = INSTALL[r.fix];
-        console.log(spec ? `  node ${self} --install ${r.fix}   # ${spec.why}\n      runs: ${spec.cmd[0]} ${spec.cmd[1].join(' ')}` : `  ${r.fix}`);
+        console.log(spec ? `  node ${self} --install ${r.fix}   # ${spec.why}\n${spec.cmds.map(([c, a]) => `      runs: ${c} ${a.join(' ')}`).join('\n')}` : `  ${r.fix}`);
       }
     }
     console.log('\nNo install needed for: npx impeccable detect, npx @google/design.md lint (they run through npx).');

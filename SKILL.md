@@ -58,7 +58,7 @@ Then check the toolchain and companions:
 ```bash
 node <orchid>/scripts/setup.mjs
 ```
-It reports Node, Playwright's Chromium, and which companion skills and hooks are installed, with the exact command for each missing piece. Missing Playwright is required: ask once and install it (`setup.mjs --install playwright`). For missing companions (Impeccable with its edit hook, Emil's `review-animations` and `break-ui`), offer them **once**, in one question, with what each adds (see `references/companions.md`). Install only what the user agrees to, with `setup.mjs --install <name>`; installing changes their Claude Code setup, so never do it unasked. In fast mode, don't ask: work without them and say so in the report. Newly installed skills load in the next Claude Code session; the `npx` checks (`impeccable detect`, `@google/design.md lint`) work immediately either way.
+It reports Node, Playwright's Chromium, and which companion skills and hooks are installed, with the exact command for each missing piece. Missing Playwright is required: ask once and install it (`setup.mjs --install playwright`). For missing companions (Impeccable with its edit hook, Emil's `review-animations` and `break-ui`, Motion's skill and docs server), offer them **once**, in one question, with what each adds (see `references/companions.md`). Install only what the user agrees to, with `setup.mjs --install <name>`; installing changes their Claude Code setup, so never do it unasked. In fast mode, don't ask: work without them and say so in the report. Newly installed skills load in the next Claude Code session; the `npx` checks (`impeccable detect`, `@google/design.md lint`) work immediately either way.
 
 Pick the stack:
 - **Existing project** → its stack, whatever it is.
@@ -127,7 +127,7 @@ Order matters, because each layer depends on the previous one being right:
 3. Shared components.
 4. Pages, most important first. Run `node <orchid>/scripts/check-source.mjs` after each page and fix what it reports before moving on.
 5. States and fixtures for data views (`?orchid-state=empty|loading|error|long`, see `references/copy-and-states.md`).
-6. Motion.
+6. Motion. When Motion's docs server is connected, look up the API for the installed version there rather than writing it from memory; don't use its ready-made page sections.
 7. 3D and scroll scenes last, as progressive enhancement over a page that already works. Use `templates/three/` as the starting point.
 8. Imagery and credits (`references/imagery.md`).
 
